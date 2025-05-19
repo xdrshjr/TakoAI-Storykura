@@ -63,44 +63,44 @@ export default function Editor() {
     setProcessingStatus('正在拆解脚本...');
     
     try {
-      // 在实际应用中，这里应该调用API进行处理
-      // 这里我们模拟API调用
+      // 调用API进行文本拆解
+      const response = await fetch('/api/text/breakdown', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text: inputText }),
+      });
       
-      // 简单的按句号、问号、感叹号拆分文本
-      const sentences = inputText.split(/(?<=[。？！.?!])\s*/).filter(s => s.trim());
+      if (!response.ok) {
+        throw new Error('API请求失败');
+      }
       
-      const newSegments: ScriptSegment[] = sentences.map((text, index) => ({
+      const data = await response.json();
+      
+      if (!data.segments || !Array.isArray(data.segments)) {
+        throw new Error('返回的数据格式不符合预期');
+      }
+      
+      // 转换API返回的结果为应用需要的格式
+      const newSegments: ScriptSegment[] = data.segments.map((segment: any, index: number) => ({
         id: `segment-${Date.now()}-${index}`,
-        originalText: text.trim(),
-        lectureText: '', // 稍后会填充
+        originalText: segment.originalText,
+        lectureText: segment.lectureText,
         audioUrl: null,
         videoUrl: null,
         imageUrl: null,
-        status: 'pending'
+        status: 'completed'
       }));
       
       setSegments(newSegments);
       
-      // 模拟调用LLM转换为讲课风格
-      setProcessingStatus('正在生成讲课式语言...');
-      
-      // 这里只是简单示例，实际应用中应该使用API
-      const updatedSegments = [...newSegments];
-      for (let i = 0; i < updatedSegments.length; i++) {
-        // 模拟API处理延迟
-        await new Promise(resolve => setTimeout(resolve, 200));
-        
-        // 简单转换示例
-        updatedSegments[i].lectureText = `让我来讲解一下：${updatedSegments[i].originalText}`;
-        updatedSegments[i].status = 'completed';
-        
-        setSegments([...updatedSegments]);
-      }
-      
       // 如果有片段，选中第一个
-      if (updatedSegments.length > 0) {
-        setSelectedSegmentId(updatedSegments[0].id);
+      if (newSegments.length > 0) {
+        setSelectedSegmentId(newSegments[0].id);
       }
+      
+      setProcessingStatus('脚本拆解完成');
       
     } catch (error) {
       console.error('处理文本时出错:', error);
