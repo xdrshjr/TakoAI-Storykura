@@ -34,6 +34,31 @@ Storykura is an advanced text-to-video conversion tool that helps users transfor
   - Export options for resolution and aspect ratio
   - Download as standard video format (MP4, H.264)
 
+## 语音生成功能
+
+StoryKura现在支持使用阿里云DashScope API生成自然流畅的语音内容。
+
+### 功能特点
+
+- 使用DashScope的cosyvoice-v2语音模型
+- 支持多种音色选项
+- 高质量、自然流畅的语音输出
+
+### 设置步骤
+
+1. 确保安装了必要的Python依赖：
+   ```bash
+   cd scripts
+   pip install -r requirements.txt
+   ```
+
+2. 在`.env.local`文件中设置DashScope API密钥：
+   ```
+   TTS_API_KEY=您的DashScope API密钥
+   ```
+
+3. 使用编辑器界面中的"生成语音"按钮将文本转换为语音。
+
 ## Getting Started
 
 ### Prerequisites

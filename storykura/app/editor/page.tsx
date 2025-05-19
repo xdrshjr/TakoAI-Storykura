@@ -15,6 +15,7 @@ interface ScriptSegment {
   videoUrl: string | null;
   imageUrl: string | null;
   status: 'pending' | 'processing' | 'completed' | 'error';
+  errorMessage?: string;
 }
 
 // 主编辑器页面组件
@@ -117,23 +118,48 @@ export default function Editor() {
     
     // 更新状态
     const updatedSegments = segments.map(s => 
-      s.id === segmentId ? { ...s, status: 'processing' as const } : s
+      s.id === segmentId ? { 
+        ...s, 
+        status: 'processing' as const,
+        errorMessage: undefined
+      } : s
     );
     setSegments(updatedSegments);
     setProcessingStatus(`正在为片段生成语音...`);
     
     try {
-      // 实际项目中应该调用API
-      // 这里模拟API调用
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // 调用API生成语音
+      const response = await fetch('/api/speech', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: segment.lectureText,
+          voiceStyle: 'longxiaochun_v2',  // 使用DashScope的v2音色
+          voiceModel: 'cosyvoice-v2'      // 使用DashScope的v2模型
+        }),
+      });
+
+      const data = await response.json();
       
-      // 模拟获取到语音URL
-      const audioUrl = `/api/audio/${segmentId}.mp3`; // 这是模拟的URL
+      if (!response.ok) {
+        // 提取错误详情
+        const errorMsg = data.error || '语音生成失败';
+        const errorDetails = data.details || '未知错误';
+        console.error(`错误: ${errorMsg}`, data);
+        throw new Error(`${errorMsg}: ${errorDetails}`);
+      }
       
+      if (!data.success || !data.audioUrl) {
+        throw new Error('返回数据格式不正确');
+      }
+      
+      // 更新片段状态
       const finalSegments = segments.map(s => 
         s.id === segmentId ? { 
           ...s, 
-          audioUrl, 
+          audioUrl: data.audioUrl, 
           status: 'completed' as const 
         } : s
       );
@@ -141,15 +167,20 @@ export default function Editor() {
       setSegments(finalSegments);
       setProcessingStatus('语音生成完成');
       
-    } catch (error) {
+    } catch (error: any) {
       console.error('生成语音时出错:', error);
       
+      // 更新状态并保存错误信息
       const errorSegments = segments.map(s => 
-        s.id === segmentId ? { ...s, status: 'error' as const } : s
+        s.id === segmentId ? { 
+          ...s, 
+          status: 'error' as const,
+          errorMessage: error.message || '未知错误'
+        } : s
       );
       
       setSegments(errorSegments);
-      setProcessingStatus('语音生成失败，请重试');
+      setProcessingStatus(`语音生成失败: ${error.message || '未知错误'}`);
     }
   };
 
@@ -336,13 +367,13 @@ export default function Editor() {
               {/* 语音控制 */}
               <div className="mb-6">
                 <h3 className="text-md font-medium mb-2">语音控制</h3>
-                <div className="flex items-center space-x-3">
+                <div className="flex flex-col space-y-3">
                   {selectedSegment.audioUrl ? (
                     <>
                       <audio 
                         controls
                         src={selectedSegment.audioUrl}
-                        className="flex-1"
+                        className="w-full"
                       />
                       <button 
                         className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -352,13 +383,30 @@ export default function Editor() {
                       </button>
                     </>
                   ) : (
-                    <button 
-                      className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 w-full"
-                      onClick={() => handleGenerateAudio(selectedSegment.id)}
-                      disabled={selectedSegment.status === 'processing'}
-                    >
-                      {selectedSegment.status === 'processing' ? '生成中...' : '生成语音'}
-                    </button>
+                    <>
+                      <button 
+                        className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 w-full"
+                        onClick={() => handleGenerateAudio(selectedSegment.id)}
+                        disabled={selectedSegment.status === 'processing'}
+                      >
+                        {selectedSegment.status === 'processing' ? (
+                          <>
+                            <span className="animate-pulse mr-2">●</span>
+                            语音生成中...
+                          </>
+                        ) : '生成语音 (DashScope)'}
+                      </button>
+                      
+                      {selectedSegment.status === 'error' && selectedSegment.errorMessage && (
+                        <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                          <p className="font-semibold">错误信息:</p>
+                          <p className="whitespace-pre-wrap">{selectedSegment.errorMessage}</p>
+                          <p className="mt-2 text-xs text-gray-500">
+                            提示：请检查Python环境和依赖是否正确安装，确保已安装dashscope包
+                          </p>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
