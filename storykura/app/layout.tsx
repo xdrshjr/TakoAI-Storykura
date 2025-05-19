@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Storykura - Turn Text into Talk",
-  description: "Turn Text into Talk – Effortlessly with Storykura.",
+  description: "Transform text content into engaging video presentations with AI-powered voice and visuals.",
 };
 
 export default function RootLayout({

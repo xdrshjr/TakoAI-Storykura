@@ -1,76 +1,95 @@
 # Storykura
 
-> Turn Text into Talk – Effortlessly with Storykura.
+**Turn Text into Talk – Effortlessly with Storykura.**
 
-Storykura is a modern web application built with Next.js and React that transforms text content into engaging spoken audio.
+## Overview
+
+Storykura is an advanced text-to-video conversion tool that helps users transform written content into engaging video presentations. With powerful AI integration, it automatically converts text into natural speech and pairs it with relevant visuals.
 
 ## Features
 
-- Text-to-Speech conversion with natural sounding voices
-- Frontend built with Next.js and React
-- Responsive design that works on all devices
-- API key management via environment variables
+- **Text Input Support**
+  - Paste text directly or upload Markdown (.md) files
+  - Real-time content preview with Markdown rendering
+
+- **Script Processing**
+  - Automatic semantic-based script segmentation
+  - AI-powered conversion to conversational, lecture-style language
+
+- **Voice Generation**
+  - Generate speech for each script segment
+  - Multiple voice styles (male, female, energetic, calm)
+
+- **Video Generation Modes**
+  - Automatic video search mode: Finds relevant video clips for each segment
+  - Lecture-style mode: Creates HTML-style slides with text and background
+
+- **Visual Editing**
+  - Script-by-script editing
+  - Real-time preview of audio and visual content
+  - Material management and customization
+
+- **Video Export**
+  - Preview complete video with transitions and background music
+  - Export options for resolution and aspect ratio
+  - Download as standard video format (MP4, H.264)
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18.x or later
-- npm or yarn
+- Node.js (v14 or higher)
+- Python (v3.7 or higher) for TTS functionality
+- API keys for LLM, TTS, and video services
 
 ### Installation
 
-1. Clone the repository
-```bash
-git clone https://github.com/yourusername/storykura.git
-cd storykura
-```
+1. Clone the repository:
+   ```
+   git clone https://github.com/yourusername/storykura.git
+   cd storykura
+   ```
 
-2. Install dependencies
-```bash
-npm install
-# or
-yarn install
-```
+2. Install dependencies:
+   ```
+   npm install
+   ```
 
-3. Set up environment variables
-```bash
-cp .env.example .env
-# Then edit .env with your API keys
-```
+3. Create a `.env.local` file with your API keys:
+   ```
+   LLM_API_KEY=your_llm_api_key
+   LLM_API_URL=your_llm_api_url
+   LLM_MODEL_NAME=your_model_name
+   TTS_API_KEY=your_tts_api_key
+   TTS_API_URL=your_tts_api_url
+   VIDEO_API_KEY=your_video_api_key
+   VIDEO_API_URL=your_video_api_url
+   ```
 
-4. Start the development server
-```bash
+4. Install Python dependencies (for TTS functionality):
+   ```
+   pip install requests
+   ```
+
+### Running the Application
+
+Start the development server:
+
+```
 npm run dev
-# or
-yarn dev
 ```
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser
+Visit `http://localhost:3000` in your browser to use Storykura.
 
-## Environment Variables
+## Usage
 
-The project uses the following environment variables that should be set in the `.env` file:
-
-- `API_KEY`: Your API key for text-to-speech services
-- `NODE_ENV`: Development environment setting
-- `PORT`: Port for the development server
-
-## Project Structure
-
-```
-storykura/
-├── app/                  # Next.js App Router
-├── public/               # Static assets
-├── .env                  # Environment variables (not tracked in git)
-├── .env.example          # Example environment variables
-└── README.md             # Project documentation
-```
-
-## Technology Stack
-
-- **Frontend**: Next.js, React, TailwindCSS
-- **Deployment**: Vercel (recommended)
+1. Input your text content (paste or upload)
+2. Click "Start Processing" to segment the script
+3. Review and edit the generated conversational script
+4. Generate voice for each segment
+5. Choose a video generation mode
+6. Preview and customize the content
+7. Export the final video
 
 ## License
 
@@ -78,5 +97,5 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Acknowledgments
 
-- Next.js team for the amazing framework
-- All contributors to this project
+- Pexels for providing the video search API
+- OpenAI for text processing capabilities
